@@ -4,10 +4,22 @@ const PostController = {
     // create post
     create: async (req, res) => {
         try {
-            const { text, url } = req.body;
-            const post = await Post.create({ text, url, userId: req.user.id });
+            const { text, image } = req.body;
+
+            if (!text) {
+                return res.status(400).json({ error: "Text is required." });
+            }
+
+            const post = await Post.create({
+                text,
+                image: image || null,
+                userId: req.user.id,
+            });
+
+            console.log("Post created successfully");
             return res.status(201).json(post);
         } catch (error) {
+            console.error("Error creating post:", error);
             return res.status(500).json({ error: "Erreur lors de la création du post." });
         }
     },
