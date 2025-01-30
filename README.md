@@ -8,7 +8,7 @@ A simple Twitter-like Progressive Web App (PWA) built with **React (Vite) + Type
 
 ### **1️⃣ Backend Setup**
 1. Navigate to the backend folder:
-   ```
+   ```sh
    cd back
    npm i
    ```
@@ -16,10 +16,15 @@ A simple Twitter-like Progressive Web App (PWA) built with **React (Vite) + Type
    - Create a copy of `.env.dist` and rename it to `.env`.
    - Edit `.env` to match your local database settings (e.g., `DB_NAME`, `DB_USER`, `DB_PASSWORD`).
 
-3. **Import the Database**:
+3. **Create the database**:
    - Open **PHPMyAdmin** or any MySQL tool.
    - Create a new database called `pwa_twitter_app` *(or the value in `DB_NAME` in your `.env` file)*.
-   - **Import the pre-configured database** from `/db/db.sql`.
+   - **Uncomment** the `alter: true` line in `/back/src/utils/sequelize.js` to allow Sequelize to create the tables:
+   ```js
+    await sequelize.sync({
+      alter: true,
+    })
+   ```
 
 4. **Start the Backend**:
    ```sh
@@ -42,5 +47,5 @@ A simple Twitter-like Progressive Web App (PWA) built with **React (Vite) + Type
 
 ---
 
-🎉 **Now your project is ready to go! 🚀**
+ **Now your project is ready to go! 🚀**
 
