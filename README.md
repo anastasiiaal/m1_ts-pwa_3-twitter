@@ -31,6 +31,17 @@ A simple Twitter-like Progressive Web App (PWA) built with **React (Vite) + Type
    npm run dev
    ```
 
+5. **Register your user via Postman**:
+    - Go to POST route `http://localhost:8081/api/auth/register`
+    - Add your user via body, e.g.:
+    ```
+    {
+        "pseudo": "Toto",
+        "email": "toto@gmail.com",
+        "password": "12345"
+    }
+    ```
+
 ---
 
 ### **2️⃣ Frontend Setup**
