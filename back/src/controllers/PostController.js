@@ -1,4 +1,4 @@
-const { Post } = require("../models");
+const { Post, User } = require("../models");
 
 const PostController = {
     // create post
@@ -27,10 +27,21 @@ const PostController = {
     // get all posts
     getAll: async (req, res) => {
         try {
-            const posts = await Post.findAll({ where: { userId: req.user.id } });
-            return res.status(200).json(posts);
+            const posts = await Post.findAll({
+                include: [
+                    {
+                        model: User,
+                        as: "author",
+                        attributes: ["pseudo"],
+                    },
+                ],
+                order: [["createdAt", "DESC"]],
+            });
+
+            res.status(200).json(posts);
         } catch (error) {
-            return res.status(500).json({ error: "Erreur lors de la récupération des posts." });
+            console.error("Error fetching posts:", error);
+            res.status(500).json({ error: "Error fetching posts" });
         }
     },
 
