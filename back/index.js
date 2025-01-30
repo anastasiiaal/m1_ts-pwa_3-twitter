@@ -1,6 +1,7 @@
 require("dotenv").config();
 require("./src/utils/sequelize"); // Charge la connexion à la BDD
 require("express-async-errors"); // Gère les erreurs dans les middlewares async
+const cors = require("cors");
 
 const express = require("express");
 const http = require("http");
@@ -9,6 +10,12 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(express.json()); // Remplace body-parser
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // Charger les routes
 const postRoutes = require("./src/routes/postRoutes");
