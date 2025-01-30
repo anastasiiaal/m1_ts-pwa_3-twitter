@@ -1,4 +1,5 @@
 import axios from "axios";
+import { openDB } from "idb";
 
 const API_BASE_URL = "http://localhost:8081/api";
 
@@ -69,10 +70,40 @@ export async function fetchUserPosts (userId: number) {
 };
 
 // create a new post
-export async function createPost (postData: { text: string; image?: string }) {
+export async function createPost(postData: { text: string; image?: string }) {
     const token = getAuthToken();
-    const response = await axios.post(`${API_BASE_URL}/posts`, postData, {
-        headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-};
+
+    try {
+        const response = await axios.post(`${API_BASE_URL}/posts`, postData, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        if (!navigator.onLine) {
+            console.warn("User offline! Saving post for later.");
+            await saveForLater(postData);
+        } else {
+            console.error("Error creating post:", error);
+        }
+        throw error;
+    }
+}
+
+async function saveForLater (data: any) {
+    const token = getAuthToken();
+
+    const db = await openDB(
+        'offline-sync',
+        1,
+        {
+            upgrade(db) {
+                db.createObjectStore('posts', { autoIncrement: true })
+            }
+        }
+    )
+
+    await db.add('posts', JSON.stringify({...data, token, createdAt: new Date().toISOString()}));
+
+    const serviceWorker : any = await navigator.serviceWorker.ready;
+    await serviceWorker.sync.register('sync-new-posts');
+}
