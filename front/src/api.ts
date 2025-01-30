@@ -13,3 +13,11 @@ export async function fetchPosts () {
     }
 };
 
+export async function createPost (postData: { author: string; text: string; url?: string | null }) {
+    try {
+        await axios.post(`${API_BASE_URL}/posts`, postData);
+    } catch (error: any) {
+        console.error("Error creating post:", error.response ? error.response.data : error.message);
+        throw new Error("Failed to create post");
+    }
+};
