@@ -4,10 +4,10 @@ import { fetchPosts } from "../api";
 
 interface Post {
     id: number;
-    author: string;
     text: string;
-    url?: string;
+    image?: string;
     createdAt: string;
+    author?: { pseudo: string, id: number };
 }
 
 export default function Index() {
@@ -52,21 +52,19 @@ export default function Index() {
             <div className="flex mb-4 space-x-4">
                 <button
                     onClick={() => setSortOrder("NEW")}
-                    className={`px-4 py-2 rounded-lg font-medium transition ${
-                        sortOrder === "NEW"
+                    className={`px-4 py-2 rounded-lg font-medium transition ${sortOrder === "NEW"
                             ? "bg-slate-600 text-white"
                             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
+                        }`}
                 >
                     🔥 Newest
                 </button>
                 <button
                     onClick={() => setSortOrder("OLD")}
-                    className={`px-4 py-2 rounded-lg font-medium transition ${
-                        sortOrder === "OLD"
+                    className={`px-4 py-2 rounded-lg font-medium transition ${sortOrder === "OLD"
                             ? "bg-slate-600 text-white"
                             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                    }`}
+                        }`}
                 >
                     🕒 Oldest
                 </button>
@@ -84,17 +82,19 @@ export default function Index() {
                                     👤
                                 </div>
                                 <div>
-                                    <h3 className="font-medium text-gray-900">{post.author}</h3>
+                                    <Link to={`feed/${post.author?.pseudo}`} className="font-medium text-gray-900">
+                                        {post.author?.pseudo || "Unknown"}
+                                    </Link>
                                     <p className="text-sm text-gray-500">
-                                        🕒 {new Date(post.createdAt).toLocaleString()}
+                                        {new Date(post.createdAt).toLocaleString()}
                                     </p>
                                 </div>
                             </div>
 
-                            {post.url && (
+                            {post.image && (
                                 <div className="rounded-lg overflow-hidden border border-gray-300">
                                     <img
-                                        src={post.url}
+                                        src={post.image}
                                         alt="Post"
                                         className="w-full object-cover max-h-80"
                                     />
