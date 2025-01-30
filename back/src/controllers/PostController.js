@@ -45,6 +45,29 @@ const PostController = {
         }
     },
 
+    // get all posts of a given user
+    getByUserId: async (req, res) => {
+        try {
+            const { id } = req.params;
+
+            const user = await User.findByPk(id);
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            const posts = await Post.findAll({
+                where: { userId: id },
+                include: [{ model: User, as: "author", attributes: ["pseudo"] }],
+                order: [["createdAt", "DESC"]],
+            });
+
+            res.status(200).json(posts);
+        } catch (error) {
+            console.error("❌ Error fetching user posts:", error);
+            res.status(500).json({ error: "Error fetching user posts" });
+        }
+    },
+
     // get post by id
     getById: async (req, res) => {
         try {
