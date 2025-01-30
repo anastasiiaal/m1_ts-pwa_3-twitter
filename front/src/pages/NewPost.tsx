@@ -5,9 +5,8 @@ import { createPost } from "../api";
 export default function NewPost() {
     const navigate = useNavigate();
 
-    const [author, setAuthor] = useState("");
     const [text, setText] = useState("");
-    const [url, setUrl] = useState("");
+    const [image, setImage] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -16,14 +15,14 @@ export default function NewPost() {
         setLoading(true);
         setError(null);
 
-        if (!author || !text) {
-            setError("Author and text are required.");
+        if (!text.trim()) {
+            setError("Post content is required.");
             setLoading(false);
             return;
         }
 
         try {
-            await createPost({ author, text, url: url.trim() || null });
+            await createPost({ text, image: image.trim() || null });
             navigate("/");
         } catch (err) {
             console.error("Error creating post:", err);
@@ -35,22 +34,11 @@ export default function NewPost() {
 
     return (
         <div className="max-w-2xl mx-auto mt-10">
-            <h2 className="text-3xl font-bold text-gray-800 mb-6">Create a new post</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">📌 Create a new post</h2>
 
             {error && <p className="text-red-500 mb-4">{error}</p>}
 
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
-                <div>
-                    <label className="block text-gray-700 font-medium mb-1">👤 Author</label>
-                    <input
-                        type="text"
-                        value={author}
-                        onChange={(e) => setAuthor(e.target.value)}
-                        className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600"
-                        placeholder="Enter your name"
-                    />
-                </div>
-
                 <div>
                     <label className="block text-gray-700 font-medium mb-1">📝 Content</label>
                     <textarea
@@ -66,17 +54,17 @@ export default function NewPost() {
                     <label className="block text-gray-700 font-medium mb-1">🖼️ Image</label>
                     <input
                         type="text"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
+                        value={image}
+                        onChange={(e) => setImage(e.target.value)}
                         className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-600"
                         placeholder="Paste an image link"
                     />
                 </div>
 
-                {url && (
+                {image && (
                     <div className="mt-2">
                         <img
-                            src={url}
+                            src={image}
                             alt="Preview"
                             className="max-h-24 rounded-lg shadow-md border"
                         />
