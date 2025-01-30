@@ -4,7 +4,7 @@ const User = require("./User");
 
 const Post = sequelize.define("Post", {
   text: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   image: {
