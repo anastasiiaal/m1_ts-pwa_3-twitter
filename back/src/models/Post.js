@@ -1,18 +1,24 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../utils/sequelize");
+const User = require("./User");
 
 const Post = sequelize.define("Post", {
-  author: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   text: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  url: {
+  image: {
     type: DataTypes.STRING,
+    allowNull: true,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: User,
+      key: "id",
+    },
+    onDelete: "CASCADE",
   },
 });
 
