@@ -19,10 +19,10 @@ app.use(cors({
 
 // Charger les routes
 const postRoutes = require("./src/routes/postRoutes");
-const commentRoutes = require("./src/routes/commentRoutes");
+const authRoutes = require("./src/routes/authRoutes");
 
 app.use("/api/posts", postRoutes);
-app.use("/api/comments", commentRoutes);
+app.use("/api/auth", authRoutes);
 
 // Middleware de gestion des erreurs
 app.use((error, req, res, next) => {
