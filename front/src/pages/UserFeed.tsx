@@ -76,8 +76,8 @@ export default function UserFeed() {
                                     👤
                                 </div>
                                 <div>
-                                    <h3 className="font-medium text-gray-900">
-                                        {post.author?.pseudo || "Unknown"}
+                                    <h3 className="font-medium text-slate-700">
+                                        @{post.author?.pseudo || "Unknown"}
                                     </h3>
                                     <p className="text-sm text-gray-500">
                                         {new Date(post.createdAt).toLocaleString()}
