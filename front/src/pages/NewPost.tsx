@@ -22,7 +22,7 @@ export default function NewPost() {
         }
 
         try {
-            await createPost({ text, image: image.trim() || null });
+            await createPost({ text, image: image.trim() || undefined });
             navigate("/");
         } catch (err) {
             console.error("Error creating post:", err);
