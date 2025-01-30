@@ -1,23 +1,46 @@
 # PWA Twitter-like app 🕊️
 
-### Install the project
-1. 
-```
-cd back
-npm i
-```
-2. Create a copy of the .env.dist, rename to .env
-3. In your localhost, create a DB called pwa_twiter_app (or the value you added to your DB_NAME in .env)
-4. Run `npm run dev`. It should create all the tables.
-5. Go to front project `cd ../front` and install dependencies via `npm i`.
+A simple Twitter-like Progressive Web App (PWA) built with **React (Vite) + TypeScript** on the frontend and **Express + Sequelize + MySQL** on the backend.
 
-### Launch the project
-```
-// from root directory
-cd back
-npm run dev
+---
 
-cd ../front
-npm run dev
-```
-Then go to the [front page](http://localhost:5173/).
+## 🚀 Install the project
+
+### **1️⃣ Backend Setup**
+1. Navigate to the backend folder:
+   ```
+   cd back
+   npm i
+   ```
+2. **Configure the Environment**:
+   - Create a copy of `.env.dist` and rename it to `.env`.
+   - Edit `.env` to match your local database settings (e.g., `DB_NAME`, `DB_USER`, `DB_PASSWORD`).
+
+3. **Import the Database**:
+   - Open **PHPMyAdmin** or any MySQL tool.
+   - Create a new database called `pwa_twitter_app` *(or the value in `DB_NAME` in your `.env` file)*.
+   - **Import the pre-configured database** from `/db/db.sql`.
+
+4. **Start the Backend**:
+   ```sh
+   npm run dev
+   ```
+
+---
+
+### **2️⃣ Frontend Setup**
+1. Navigate to the frontend folder:
+   ```sh
+   cd ../front
+   npm i
+   ```
+2. **Start the Frontend**:
+   ```sh
+   npm run dev
+   ```
+3. Open the app in your browser: [http://localhost:5173/](http://localhost:5173/)
+
+---
+
+🎉 **Now your project is ready to go! 🚀**
+
