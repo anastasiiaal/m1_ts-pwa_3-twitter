@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchPosts } from "../api";
+import { fetchPosts, logoutUser } from "../api";
 
 interface Post {
     id: number;
     text: string;
     image?: string;
     createdAt: string;
-    author?: { pseudo: string, id: number };
+    author?: { pseudo: string; id: number };
 }
 
 export default function Index() {
@@ -37,6 +37,11 @@ export default function Index() {
         loadPosts();
     }, [sortOrder]);
 
+    const handleLogout = () => {
+        logoutUser(); // clear token
+        window.location.href = "/login";
+    };
+
     if (loading) return <p className="text-center mt-10 text-gray-500">Loading posts...</p>;
     if (error) return <p className="text-center text-red-500 mt-10">Error: {error}</p>;
 
@@ -44,9 +49,14 @@ export default function Index() {
         <div className="max-w-2xl mx-auto mt-10 mb-10">
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Latest Posts</h2>
-                <Link to="/new-post" className="bg-slate-600 text-white px-4 py-2 rounded-lg shadow hover:bg-slate-500">
-                    ＋ New Post
-                </Link>
+                <div className="flex space-x-4">
+                    <Link to="/new-post" className="bg-slate-600 text-white px-4 py-2 rounded-lg shadow hover:bg-slate-500">
+                        ＋ New Post
+                    </Link>
+                    <button onClick={handleLogout} className="bg-orange-500 text-white px-4 py-2 rounded-lg shadow hover:bg-orange-600">
+                        Logout
+                    </button>
+                </div>
             </div>
 
             <div className="flex mb-4 space-x-4">
@@ -55,7 +65,7 @@ export default function Index() {
                     className={`px-4 py-2 rounded-lg font-medium transition ${sortOrder === "NEW"
                             ? "bg-slate-600 text-white"
                             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        }`}
+                    }`}
                 >
                     🔥 Newest
                 </button>
@@ -64,7 +74,7 @@ export default function Index() {
                     className={`px-4 py-2 rounded-lg font-medium transition ${sortOrder === "OLD"
                             ? "bg-slate-600 text-white"
                             : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                        }`}
+                    }`}
                 >
                     🕒 Oldest
                 </button>
