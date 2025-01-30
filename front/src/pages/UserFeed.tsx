@@ -15,12 +15,21 @@ export default function UserFeed() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [userNotFound, setUserNotFound] = useState<boolean>(false); // whether user exists
 
     useEffect(() => {
         const loadUserPosts = async () => {
             try {
                 setLoading(true);
+                setUserNotFound(false);
+                setError(null);
+
                 const data = await fetchUserPosts(Number(id));
+                if (data === null) {
+                    setUserNotFound(true);
+                    return;
+                }
+
                 setPosts(data);
             } catch (err) {
                 setError("Failed to load user's posts.");
@@ -35,6 +44,18 @@ export default function UserFeed() {
     }, [id]);
 
     if (loading) return <p className="text-center mt-10 text-gray-500">Loading posts...</p>;
+
+    if (userNotFound)
+        return (
+            <div className="text-center mt-10">
+                <h2 className="text-2xl font-bold text-slate-700 mb-2">User Not Found</h2>
+                <p className="text-gray-500">The user with ID {id} does not exist.</p>
+                <Link to="/" className="mt-4 inline-block bg-slate-600 text-white px-4 py-2 rounded-lg shadow hover:bg-slate-500">
+                    Back to home
+                </Link>
+            </div>
+        );
+
     if (error) return <p className="text-center text-red-500 mt-10">{error}</p>;
 
     return (
@@ -42,7 +63,7 @@ export default function UserFeed() {
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Posts by {posts[0]?.author?.pseudo || "Unknown author"}</h2>
                 <Link to="/" className="bg-slate-500 text-white px-4 py-2 rounded-lg shadow hover:bg-slate-400">
-                    Back to Home
+                    Back to home
                 </Link>
             </div>
 
