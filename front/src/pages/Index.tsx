@@ -92,7 +92,7 @@ export default function Index() {
                                     👤
                                 </div>
                                 <div>
-                                    <Link to={`feed/${post.author?.pseudo}`} className="font-medium text-gray-900">
+                                    <Link to={`feed/${post.author?.id}`} className="font-medium text-gray-900">
                                         {post.author?.pseudo || "Unknown"}
                                     </Link>
                                     <p className="text-sm text-gray-500">

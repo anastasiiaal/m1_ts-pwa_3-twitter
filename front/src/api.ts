@@ -48,6 +48,14 @@ export async function fetchPosts () {
     return response.data;
 };
 
+// get posts by user id
+export const fetchUserPosts = async (userId: number) => {
+    const response = await fetch(`http://localhost:8081/api/posts/user/${userId}`);
+    if (!response.ok) throw new Error("Failed to fetch user posts");
+    return response.json();
+};
+
+
 // create a new post
 export async function createPost (postData: { text: string; image?: string }) {
     const token = getAuthToken();

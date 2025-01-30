@@ -32,7 +32,7 @@ const PostController = {
                     {
                         model: User,
                         as: "author",
-                        attributes: ["pseudo"],
+                        attributes: ["id", "pseudo"],
                     },
                 ],
                 order: [["createdAt", "DESC"]],
@@ -57,7 +57,7 @@ const PostController = {
 
             const posts = await Post.findAll({
                 where: { userId: id },
-                include: [{ model: User, as: "author", attributes: ["pseudo"] }],
+                include: [{ model: User, as: "author", attributes: ["id", "pseudo"] }],
                 order: [["createdAt", "DESC"]],
             });
 

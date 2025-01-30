@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Index from './pages/Index';
 import NewPost from './pages/NewPost';
 import Login from "./pages/Login";
+import UserFeed from './pages/UserFeed';
 import { getAuthToken } from "./api";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route index element={<Index />} />
             <Route path="new-post" element={<NewPost />} />
             <Route path="/login" element={<Navigate to="/" />} /> {/* Prevents logged-in users from seeing login page */}
+            <Route path="/feed/:id" element={<UserFeed />} />
           </Route>
         )}
       </Routes>
