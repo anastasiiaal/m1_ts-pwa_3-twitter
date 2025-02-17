@@ -5,14 +5,19 @@ import { subscribeToNotifications, unsubscribeFromNotifications, isUserSubscribe
 const PUBLIC_PUSH_KEY = "BL6tqu_BJk7GEy2BECyraORLbf-xvzvlPByH1ISt8y80QyVFztayJBgDi8IW-hccjZUGTAx-cwGfjGIY3IqklHA";
 
 export default function NotificationsManager() {
-    const [subscribed, setSubscribed] = useState<boolean | null>(null);
-    // const [subscribed, setSubscribed] = useState<boolean | null>(Notification.permission == "granted");
-
+    const [subscribed, setSubscribed] = useState<boolean | null>(
+        Notification.permission === "granted" ? null : false  // "null" because not sure they are still subscribed
+    );
+    
     // check if user is subscribed on mount
     useEffect(() => {
         async function checkSubscription() {
-            const alreadySubscribed = await isUserSubscribed();
-            setSubscribed(alreadySubscribed);
+            if (Notification.permission === "granted") {
+                const alreadySubscribed = await isUserSubscribed();
+                setSubscribed(alreadySubscribed);
+            } else {
+                setSubscribed(false);
+            }
         }
         checkSubscription();
     }, []);
