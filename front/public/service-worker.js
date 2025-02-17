@@ -148,19 +148,48 @@ self.addEventListener("push", (event) => {
         actions: [
             { action: "open", title: "View" },
             { action: "close", title: "Dismiss" }
-        ]
+        ],
+        data: {
+            type: "POST_CREATED"
+        }
     };
 
     event.waitUntil(self.registration.showNotification(title, options));
 });
 
 // handle notification click
-self.addEventListener("notificationclick", (event) => {
-    console.log("🔔 Notification clicked:", event.notification);
+self.addEventListener('notificationclick', function(event) {
+    if (event.notification.data?.type === "POST_CREATED") {
+        event.waitUntil(
+            self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((tabs) => {
+                if (tabs.length > 0) {
+                    let foundTab = false;
 
-    event.notification.close();
+                    for (const tab of tabs) {
+                        // if a tab is already open, send a message to refresh
+                        if (tab.url.endsWith("/") || tab.url.includes("/index.html")) {
+                            console.log("🌍 Found homepage tab, focusing...");
+                            tab.focus();
+                            tab.postMessage({ action: "refreshPage" }); // send message
+                            foundTab = true;
+                            break;
+                        }
+                    }
 
-    if (event.action === "open") {
-        clients.openWindow("/");
+                    if (!foundTab) {
+                        console.log("🔄 No homepage tab found, sending message to first tab...");
+                        tabs[0].focus();
+                        tabs[0].postMessage({ action: "redirectToHome" }); // redirect first open tab
+                    }
+                } else {
+                    // ✅ No open tab? Open a new one at `/`
+                    console.log("🆕 No open tabs found, opening new window...");
+                    self.clients.openWindow("/");
+                }
+            })
+        );
     }
+
+    // ✅ Close the notification
+    event.notification.close();
 });
