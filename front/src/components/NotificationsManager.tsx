@@ -6,6 +6,7 @@ const PUBLIC_PUSH_KEY = "BL6tqu_BJk7GEy2BECyraORLbf-xvzvlPByH1ISt8y80QyVFztayJBg
 
 export default function NotificationsManager() {
     const [subscribed, setSubscribed] = useState<boolean | null>(null);
+    // const [subscribed, setSubscribed] = useState<boolean | null>(Notification.permission == "granted");
 
     // check if user is subscribed on mount
     useEffect(() => {
