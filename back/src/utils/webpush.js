@@ -1,5 +1,6 @@
 const webpush = require('web-push');
 const NotificationSubscription = require("../models/NotificationSubscription");
+const { Op } = require("sequelize");
 
 webpush.setVapidDetails(
     'mailto:lalala@gmail.com',
@@ -7,21 +8,24 @@ webpush.setVapidDetails(
     process.env.NOTIF_PRIVATE_KEY
 )
 
-async function sendNotifications(userId, notificationData) {
-    if (!userId) {
-        console.error("Error: userId is undefined in sendNotifications");
-        return;
-    }
+async function sendNotifications(authorId, notificationData) {
+    console.log(`Sending notifications to all subscribers (excluding user ${authorId})...`);
 
+    // fetch all subscriptions EXCEPT author's
     const subscriptions = await NotificationSubscription.findAll({
-        where: { userId }
+        where: {
+            userId: { 
+                [Op.ne]: authorId // exclude the author
+            }
+        }
     });
 
     if (subscriptions.length === 0) {
-        console.warn("No subscriptions found for user:", userId);
+        console.warn("⚠️ No active subscriptions found.");
         return;
     }
 
+    // send notification to every subscribed user
     for (const subscription of subscriptions) {
         try {
             await webpush.sendNotification(
