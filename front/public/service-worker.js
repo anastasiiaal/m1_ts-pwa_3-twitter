@@ -119,3 +119,48 @@ self.addEventListener('fetch', function(event) {
         );
     }
 })
+
+// le truc bonus pour fetch à une période
+// self.addEventListener('activate', (event) => {
+//     if(self.redistration.periodsync) {
+//         event.waitUntil
+//     }
+// })
+
+
+self.addEventListener("push", (event) => {
+    console.log("Data reçu de l'event :", event);
+
+    if (!event.data) {
+        console.warn("No data in push event.");
+        return;
+    }
+
+    const notificationData = event.data.json();
+    console.log("Notification data:", notificationData);
+
+    const title = notificationData.title || "New notification";
+    const options = {
+        body: notificationData.body || "You have a new message.",
+        icon: "/icons/icon_144.png",
+        badge: "/icons/icon_144.png",
+        vibrate: [200, 100, 200],
+        actions: [
+            { action: "open", title: "View" },
+            { action: "close", title: "Dismiss" }
+        ]
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// handle notification click
+self.addEventListener("notificationclick", (event) => {
+    console.log("🔔 Notification clicked:", event.notification);
+
+    event.notification.close();
+
+    if (event.action === "open") {
+        clients.openWindow("/");
+    }
+});

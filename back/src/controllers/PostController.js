@@ -1,4 +1,22 @@
 const { Post, User } = require("../models");
+const { sendNotifications } = require("../utils/webpush");
+
+async function notifyNewPost(post) {
+    const user = await User.findByPk(post.userId);
+    
+    if (!user) {
+        console.warn("User not found for post:", post.id);
+        return;
+    }
+
+    const notificationData = {
+        title: "📢 New Post!",
+        body: `${user.pseudo} just posted: ${post.text}`,
+    };
+
+    await sendNotifications(user.id, notificationData);
+    console.log("Notification sent to ", user.id); 
+}
 
 const PostController = {
     // create post
@@ -15,12 +33,16 @@ const PostController = {
                 image: image || null,
                 userId: req.user.id,
             });
-
+            
             console.log("Post created successfully");
-            return res.status(201).json(post);
+
+            // fetch user and send notification
+            await notifyNewPost(post);
+
+            res.status(201).json(post);
         } catch (error) {
             console.error("Error creating post:", error);
-            return res.status(500).json({ error: "Erreur lors de la création du post." });
+            res.status(500).json({ error: "Internal Server Error" });
         }
     },
 
