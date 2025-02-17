@@ -72,25 +72,6 @@ export async function fetchUserPosts(userId: number) {
 };
 
 // create a new post
-// export async function createPost(postData: { text: string; image?: string }) {
-//     const token = getAuthToken();
-
-//     try {
-//         const response = await axios.post(`${API_BASE_URL}/posts`, postData, {
-//             headers: { Authorization: `Bearer ${token}` },
-//         });
-//         return response.data;
-//     } catch (error) {
-//         if (!navigator.onLine) {
-//             console.warn("User offline! Saving post for later.");
-//             await saveForLater(postData);
-//         } else {
-//             console.error("Error creating post:", error);
-//         }
-//         throw error;
-//     }
-// }
-
 export async function createPost(postData: { text: string; image?: string }) {
     const token = getAuthToken();
 
