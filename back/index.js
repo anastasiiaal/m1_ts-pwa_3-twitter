@@ -20,9 +20,11 @@ app.use(cors({
 // Charger les routes
 const postRoutes = require("./src/routes/postRoutes");
 const authRoutes = require("./src/routes/authRoutes");
+const notificationRoutes = require("./src/routes/notificationRoutes");
 
 app.use("/api/posts", postRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // Middleware de gestion des erreurs
 app.use((error, req, res, next) => {
