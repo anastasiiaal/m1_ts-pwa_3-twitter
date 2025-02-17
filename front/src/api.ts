@@ -4,7 +4,7 @@ import { openDB } from "idb";
 const API_BASE_URL = "http://localhost:8081/api";
 
 // store token locally
-export function setAuthToken (token: string | null) {
+export function setAuthToken(token: string | null) {
     if (token) {
         localStorage.setItem("token", token);
     } else {
@@ -13,17 +13,17 @@ export function setAuthToken (token: string | null) {
 };
 
 // get token from localStorage
-export function getAuthToken () {
+export function getAuthToken() {
     return localStorage.getItem("token");
 };
 
 // register a new user
-export async function registerUser (userData: { pseudo: string; email: string; password: string }) {
+export async function registerUser(userData: { pseudo: string; email: string; password: string }) {
     return axios.post(`${API_BASE_URL}/auth/register`, userData);
 };
 
 // login and get token
-export async function loginUser (credentials: { email: string; password: string }) {
+export async function loginUser(credentials: { email: string; password: string }) {
     const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
     if (response.data.token) {
         setAuthToken(response.data.token);
@@ -32,7 +32,7 @@ export async function loginUser (credentials: { email: string; password: string 
 };
 
 // logout
-export function logoutUser () {
+export function logoutUser() {
     const token = getAuthToken();
     if (token) {
         axios.post(`${API_BASE_URL}/auth/logout`, { token });
@@ -41,7 +41,7 @@ export function logoutUser () {
 };
 
 // get all posts
-export async function fetchPosts () {
+export async function fetchPosts() {
     const token = getAuthToken();
     const response = await axios.get(`${API_BASE_URL}/posts`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -50,9 +50,11 @@ export async function fetchPosts () {
 };
 
 // get posts by user id
-export async function fetchUserPosts (userId: number) {
+export async function fetchUserPosts(userId: number) {
     try {
-        const response = await fetch(`http://localhost:8081/api/posts/user/${userId}`);
+        const response = await fetch(`http://localhost:8081/api/posts/user/${userId}`, {
+            headers: { Authorization: `Bearer ${getAuthToken()}` }
+        });
 
         if (response.status === 404) {
             return null;
@@ -70,6 +72,25 @@ export async function fetchUserPosts (userId: number) {
 };
 
 // create a new post
+// export async function createPost(postData: { text: string; image?: string }) {
+//     const token = getAuthToken();
+
+//     try {
+//         const response = await axios.post(`${API_BASE_URL}/posts`, postData, {
+//             headers: { Authorization: `Bearer ${token}` },
+//         });
+//         return response.data;
+//     } catch (error) {
+//         if (!navigator.onLine) {
+//             console.warn("User offline! Saving post for later.");
+//             await saveForLater(postData);
+//         } else {
+//             console.error("Error creating post:", error);
+//         }
+//         throw error;
+//     }
+// }
+
 export async function createPost(postData: { text: string; image?: string }) {
     const token = getAuthToken();
 
@@ -80,30 +101,51 @@ export async function createPost(postData: { text: string; image?: string }) {
         return response.data;
     } catch (error) {
         if (!navigator.onLine) {
-            console.warn("User offline! Saving post for later.");
+            console.warn("⚠️ User offline! Attempting to save post for later...");
             await saveForLater(postData);
         } else {
-            console.error("Error creating post:", error);
+            console.error("❌ Error creating post:", error);
         }
         throw error;
     }
 }
 
-async function saveForLater (data: any) {
+
+// ✅ Fix IndexedDB storage & background sync
+async function saveForLater(data: { text: string; image?: string }) {
     const token = getAuthToken();
 
-    const db = await openDB(
-        'offline-sync',
-        1,
-        {
-            upgrade(db) {
-                db.createObjectStore('posts', { autoIncrement: true })
+    const db = await openDB("offline-sync", 1, {
+        upgrade(db) {
+            if (!db.objectStoreNames.contains("posts")) {
+                db.createObjectStore("posts", { keyPath: "id", autoIncrement: true });
             }
         }
-    )
+    });
 
-    await db.add('posts', JSON.stringify({...data, token, createdAt: new Date().toISOString()}));
+    // ✅ Check if the post already exists to prevent duplicates
+    const existingPosts = await db.getAll("posts");
+    const isDuplicate = existingPosts.some(
+        (post) => post.text === data.text && post.image === data.image
+    );
 
-    const serviceWorker : any = await navigator.serviceWorker.ready;
-    await serviceWorker.sync.register('sync-new-posts');
+    if (isDuplicate) {
+        console.warn("🚫 Post already saved for offline submission.");
+        return;
+    }
+
+    await db.add("posts", { ...data, token, createdAt: new Date().toISOString() });
+
+    // ✅ Register background sync once, not multiple times
+    if ("serviceWorker" in navigator) {
+        const registration = await navigator.serviceWorker.ready;
+        if ("sync" in registration) {
+            await (registration as any).sync.register("sync-new-posts");
+            console.log("🔄 Background sync registered.");
+        } else {
+            console.warn("⚠️ Background sync not supported.");
+        }
+    }
 }
+
+

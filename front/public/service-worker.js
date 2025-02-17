@@ -1,3 +1,8 @@
+import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
+import { registerRoute } from "workbox-routing";
+import { NetworkFirst } from "workbox-strategies";
+import { openDB } from "idb";
+
 const APP_SHELL_CACHE = "app-shell"
 const SHELL_FILES = [
     "/",
@@ -22,13 +27,6 @@ self.addEventListener('activate', function(event) {
     console.log("Activated");
 })
 
-import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching"
-import { registerRoute } from "workbox-routing"
-import { NetworkFirst } from "workbox-strategies"
-
-// importScripts('/idb.js')
-
-import { openDB } from "idb"
 
 cleanupOutdatedCaches()
 // precacheAndRoute(...self.__WB_MANIFEST);
@@ -42,28 +40,57 @@ registerRoute(({request}) => {
     return request.url, request.url.startsWith('http://localhost:8081') && request.method === "GET"
 }, new NetworkFirst())
 
-function sendPost(postData) {
-    // ... @TODO
-    // if inserted, we can clean from browser db not to re send again & again
-    console.log(postData);
+async function sendPost(post) {
+    try {
+        const response = await fetch("http://localhost:8081/api/posts", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${post.token}`,
+            },
+            body: JSON.stringify({
+                text: post.text,
+                image: post.image,
+                createdAt: post.createdAt,
+            }),
+        });
+
+        if (response.ok) {
+            console.log("✅ Post successfully sent:", post);
+            return true;
+        } else {
+            console.error("Failed to send post:", response.status);
+            return false;
+        }
+    } catch (error) {
+        console.error("Network error while sending post:", error);
+        return false;
+    }
 }
 
 self.addEventListener('sync', function (event) {
     console.log("received a sync event: ", event.tag);
     if (event.tag === 'sync-new-posts') {
-        // implement logic
         event.waitUntil(
-            openDB('offline-sync', 1).then(function(db) {
-                return db.getAll('posts').then(function(posts) {
-                    // pour chacun faire un petch
-                    for (const post in posts) {
-                        sendPost(post)
+            openDB('offline-sync', 1).then(async function (db) {
+                // get only the IDs (== keys) of the stored posts
+                const keys = await db.getAllKeys("posts");
+
+                // pour chacun faire un petch
+                for (const key of keys) {
+                    const post = await db.get("posts", key);
+                    if (!post) continue; // skip if post doesn't exist == already deleted
+
+                    const success = await sendPost(post);
+                    if (success) {
+                        await db.delete("posts", key); // remove post after successful sync
+                        console.log("Post deleted from IndexedDB:", key);
                     }
-                })
+                }
             })
-        )
+        );
     }
-})
+});
 
 
 const APP_ROOT = "http://localhost:5173";
@@ -81,21 +108,14 @@ self.addEventListener('fetch', function(event) {
                 })
             })
         )
-    }
-
+    } 
     else if (event.request.url.startsWith("https://img.freepik.com/")) {
         event.respondWith(
-            fetch(event.request).catch(function(error) {
+            fetch(event.request).catch(function() {
                 return caches.open(APP_SHELL_CACHE).then(function(cache) {
-                    return cache.match("/placeholder.gif").then(function(cachedResponse) {
-                        if (cachedResponse) {
-                            return cachedResponse
-                        } else {
-                            console.error("Couldn't fetch placeholder")
-                        }
-                    })
+                    return cache.match("/placeholder.gif");
                 })
             })
         );
-    }   
+    }
 })
