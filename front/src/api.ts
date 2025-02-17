@@ -129,4 +129,48 @@ async function saveForLater(data: { text: string; image?: string }) {
     }
 }
 
+// Subscribe user to push notifications
+export async function subscribeToNotifications(subscription: PushSubscription) {
+    const token = getAuthToken();
+    try {
+        await axios.post(`${API_BASE_URL}/notifications/subscribe`, subscription, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("✅ Subscription saved to backend.");
+        return true;
+    } catch (error) {
+        console.error("❌ Failed to save subscription:", error);
+        return false;
+    }
+}
 
+// All PUSH related ____________________
+
+// Unsubscribe user from push notifications
+export async function unsubscribeFromNotifications(endpoint: string) {
+    const token = getAuthToken();
+    try {
+        await axios.post(`${API_BASE_URL}/notifications/unsubscribe`, { endpoint }, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log("✅ Subscription removed from backend.");
+        return true;
+    } catch (error) {
+        console.error("❌ Failed to remove subscription:", error);
+        return false;
+    }
+}
+
+// Get all subscriptions for the current user
+export async function getUserSubscriptions() {
+    const token = getAuthToken();
+    try {
+        const response = await axios.get(`${API_BASE_URL}/notifications/subscriptions`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("❌ Failed to fetch user subscriptions:", error);
+        return [];
+    }
+}
