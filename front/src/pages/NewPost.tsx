@@ -9,11 +9,13 @@ export default function NewPost() {
     const [image, setImage] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [offlineMessage, setOfflineMessage] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        setOfflineMessage(null);
 
         if (!text.trim()) {
             setError("Post content is required.");
@@ -25,8 +27,13 @@ export default function NewPost() {
             await createPost({ text, image: image.trim() || undefined });
             navigate("/");
         } catch (err) {
-            console.error("Error creating post:", err);
-            setError("Failed to create post. Please try again.");
+            if (!navigator.onLine) {
+                // display reassuring message if offline while submitting
+                setOfflineMessage("⚠️ You're offline. Your post will be sent automatically once you reconnect.");
+            } else {
+                console.error("Error creating post:", err);
+                setError("Failed to create post. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
@@ -37,6 +44,7 @@ export default function NewPost() {
             <h2 className="text-3xl font-bold text-gray-800 mb-6">📌 Create a new post</h2>
 
             {error && <p className="text-red-500 mb-4">{error}</p>}
+            {offlineMessage && <p className="text-yellow-500 mb-4">{offlineMessage}</p>}
 
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md space-y-4">
                 <div>
