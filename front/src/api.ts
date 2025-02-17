@@ -174,3 +174,18 @@ export async function getUserSubscriptions() {
         return [];
     }
 }
+
+// Check if user is already subscribed
+export async function isUserSubscribed() {
+    const token = getAuthToken();
+    try {
+        const response = await axios.get(`${API_BASE_URL}/notifications/subscriptions`, {
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return response.data.length > 0; // return true if at least one subscription exists
+    } catch (error) {
+        console.error("❌ Failed to check subscription status:", error);
+        return false;
+    }
+}
+
