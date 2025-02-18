@@ -157,39 +157,48 @@ self.addEventListener("push", (event) => {
     event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// handle notification click
+// Handle notification click
 self.addEventListener('notificationclick', function(event) {
-    if (event.notification.data?.type === "POST_CREATED") {
-        event.waitUntil(
-            self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((tabs) => {
-                if (tabs.length > 0) {
-                    let foundTab = false;
+    switch (event.action) {
+        case "close":
+            console.log("Notification dismissed.");
+            event.notification.close();
+            break;
 
-                    for (const tab of tabs) {
-                        // if a tab is already open, send a message to refresh
-                        if (tab.url.endsWith("/") || tab.url.includes("/index.html")) {
-                            console.log("🌍 Found homepage tab, focusing...");
-                            tab.focus();
-                            tab.postMessage({ action: "refreshPage" }); // send message
-                            foundTab = true;
-                            break;
+        case "open":
+        default:
+            if (event.notification.data?.type === "POST_CREATED") {
+                event.waitUntil(
+                    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((tabs) => {
+                        if (tabs.length > 0) {
+                            let foundTab = false;
+
+                            for (const tab of tabs) {
+                                // if a tab is already open, send a message to refresh
+                                if (tab.url.endsWith("/") || tab.url.includes("/index.html")) {
+                                    console.log("🌍 Found homepage tab, focusing...");
+                                    tab.focus();
+                                    tab.postMessage({ action: "refreshPage" }); // send message
+                                    foundTab = true;
+                                    break;
+                                }
+                            }
+
+                            if (!foundTab) {
+                                console.log("🔄 No homepage tab found, sending message to first tab...");
+                                tabs[0].focus();
+                                tabs[0].postMessage({ action: "redirectToHome" }); // redirect first open tab
+                            }
+                        } else {
+                            // no open tab => open a new one at `/`
+                            console.log("🆕 No open tabs found, opening new window...");
+                            self.clients.openWindow("/");
                         }
-                    }
+                    })
+                );
+            }
 
-                    if (!foundTab) {
-                        console.log("🔄 No homepage tab found, sending message to first tab...");
-                        tabs[0].focus();
-                        tabs[0].postMessage({ action: "redirectToHome" }); // redirect first open tab
-                    }
-                } else {
-                    // ✅ No open tab? Open a new one at `/`
-                    console.log("🆕 No open tabs found, opening new window...");
-                    self.clients.openWindow("/");
-                }
-            })
-        );
+            event.notification.close();
+            break;
     }
-
-    // ✅ Close the notification
-    event.notification.close();
 });
