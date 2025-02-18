@@ -54,9 +54,36 @@ A simple Twitter-like Progressive Web App (PWA) built with **React (Vite) + Type
    ```sh
    npm run dev
    ```
-3. Open the app in your browser: [http://localhost:5173/](http://localhost:5173/)
+3. **Open the app in your browser**: [http://localhost:5173/](http://localhost:5173/)
+
+4. **Create an account** and start posting !
 
 ---
 
  **Now your project is ready to go! 🚀**
 
+---
+
+### Features : 
+- ✔️ Création de compte
+- ✔️ Connexion
+- ✔️ Liste des posts
+- ✔️ Ajout d'un post
+- ✔️ Liste des posts d'une personne précise
+- ✔️ Utilisation du précache pour fonctionnement hors ligne
+- ✔️ Utilisation d'un cache "network-first" pour avoir les derniers posts chargés, même hors-ligne
+- ✔️ Ajout d'un post en mode hors-ligne (offline-sync)
+- ✔️ Abonnements & Notifications "général" (je m'abonne, dès que quelqu'un ajoute un post, j'ai une notif)
+- ✔️ Ouverture du site lors du click sur une notif  
+
+### Features "en plus" : 
+- Mise à jour en temps réel de la liste des posts (via le système de notifications puhs)
+- Passer les notifs en mode "follow". (Je m'abonne à des profils en particulier, je reçois une notif si l'un d'eux ajoute un post)
+- Affichage d'une info-bulle si on est hors-ligne
+- Ajout de photo sur les posts
+- Pouvoir prendre des photos directement via l'appli
+- Ajout de géolocalisation sur les posts
+- Pouvoir utiliser son micro pour écrire un post (speech-to-text)
+- Faire le post par une IA (text-to-speech)
+- Ajout de filtre type instagram sur l'appareil photo in-app.
+- Tout autre idée.  
