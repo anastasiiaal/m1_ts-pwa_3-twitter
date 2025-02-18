@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginUser } from "../api";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../../api";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -58,6 +58,7 @@ export default function Login() {
                     >
                         {loading ? "Logging in..." : "Login"}
                     </button>
+                    <Link to="/register" className="w-full text-sm text-center text-slate-700 mt-1 block">New here ? Register</Link>
                 </form>
             </div>
         </div>
