@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import NewPost from './pages/NewPost';
-import Login from "./pages/Login";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 import UserFeed from './pages/UserFeed';
 import { getAuthToken } from "./api";
 
@@ -30,6 +31,7 @@ function App() {
         {!isAuthenticated ? (
           <>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="*" element={<Navigate to="/login" />} />
           </>
         ) : (

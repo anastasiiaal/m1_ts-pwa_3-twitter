@@ -3,6 +3,7 @@ import { openDB } from "idb";
 
 const API_BASE_URL = "http://localhost:8081/api";
 
+// __________ AUTH & USER ________________________________________________________________________________
 // store token locally
 export function setAuthToken(token: string | null) {
     if (token) {
@@ -19,8 +20,15 @@ export function getAuthToken() {
 
 // register a new user
 export async function registerUser(userData: { pseudo: string; email: string; password: string }) {
-    return axios.post(`${API_BASE_URL}/auth/register`, userData);
+    try {
+        const response = await axios.post(`${API_BASE_URL}/auth/register`, userData);
+        return response.data;
+    } catch (error: any) {
+        console.error("Registration error:", error.response?.data || error.message);
+        throw error;
+    }
 };
+
 
 // login and get token
 export async function loginUser(credentials: { email: string; password: string }) {
@@ -39,6 +47,8 @@ export function logoutUser() {
         setAuthToken(null);
     }
 };
+
+// __________ POSTS ________________________________________________________________________________
 
 // get all posts
 export async function fetchPosts() {
@@ -91,8 +101,8 @@ export async function createPost(postData: { text: string; image?: string }) {
     }
 }
 
-
-// ✅ Fix IndexedDB storage & background sync
+// __________ OFFLINE FEATURES ________________________________________________________________________________
+// indexedDB storage & background sync
 async function saveForLater(data: { text: string; image?: string }) {
     const token = getAuthToken();
 
@@ -104,7 +114,7 @@ async function saveForLater(data: { text: string; image?: string }) {
         }
     });
 
-    // ✅ Check if the post already exists to prevent duplicates
+    // check if the post already exists to prevent duplicates
     const existingPosts = await db.getAll("posts");
     const isDuplicate = existingPosts.some(
         (post) => post.text === data.text && post.image === data.image
@@ -117,7 +127,7 @@ async function saveForLater(data: { text: string; image?: string }) {
 
     await db.add("posts", { ...data, token, createdAt: new Date().toISOString() });
 
-    // ✅ Register background sync once, not multiple times
+    // register background sync once, not multiple times
     if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.ready;
         if ("sync" in registration) {
@@ -129,7 +139,8 @@ async function saveForLater(data: { text: string; image?: string }) {
     }
 }
 
-// Subscribe user to push notifications
+// __________ All PUSH related ________________________________________________________________________________
+// subscribe user to push notifications
 export async function subscribeToNotifications(subscription: PushSubscription) {
     const token = getAuthToken();
     try {
@@ -143,8 +154,6 @@ export async function subscribeToNotifications(subscription: PushSubscription) {
         return false;
     }
 }
-
-// All PUSH related ____________________
 
 // Unsubscribe user from push notifications
 export async function unsubscribeFromNotifications(endpoint: string) {
